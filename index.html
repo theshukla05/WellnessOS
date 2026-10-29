@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WellnessOS - Emily's Annual Wellness Synthesis</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#00897B',
+              dark: '#004D40',
+              light: '#2DD4BF',
+              subtle: '#E6F4F2'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-[#F0F4FA] dark:bg-[#0B1120] text-[#0F172A] dark:text-[#F8FAFC] font-sans antialiased selection:bg-[#00897B] selection:text-white transition-colors duration-300">
+
+  <div class="flex min-h-screen">
+    <!-- =========================================================
+         LEFT SIDEBAR
+    ========================================================== -->
+    <aside class="w-68 h-screen sticky top-0 bg-white dark:bg-[#131C31] border-r border-[#E2E8F0] dark:border-[#1E293B] flex flex-col justify-between shrink-0 hidden lg:flex z-30 shadow-sm transition-colors duration-300 overflow-y-auto">
+      <div>
+        <!-- Logo Header -->
+        <div class="p-6 pb-5">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#00897B] via-[#00BFA5] to-[#26A69A] flex items-center justify-center text-white shadow-lg shadow-[#00897B]/30 ring-4 ring-[#00897B]/15">
+              <i data-lucide="heart-pulse" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-black font-medical-heading tracking-tight text-[#0F172A] dark:text-white flex items-center gap-1">
+                Wellness<span class="text-[#00897B]">OS</span>
+              </h1>
+              <p class="text-[10px] text-[#00897B] font-bold tracking-wider uppercase">Track · Analyse · Thrive</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav id="sidebar-nav" class="px-3.5 py-2 space-y-1.5"></nav>
+      </div>
+
+      <!-- Bottom Card Promo Banner -->
+      <div class="p-3.5 m-3 rounded-2xl relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#042F2E] text-white shadow-lg border border-[#334155]/50 shrink-0">
+        <img 
+          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" 
+          alt="Nature" 
+          class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-40 pointer-events-none" 
+        />
+        <div class="relative z-10 flex flex-col items-center text-center py-2">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00BFA5] to-[#2DD4BF] flex items-center justify-center mb-1.5 shadow-md animate-float-3d">
+            <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+          </div>
+          <h3 class="font-extrabold text-sm text-white font-medical-heading">A Healthier Happier You</h3>
+          <p class="text-[10px] text-[#CBD5E1] mt-0.5 mb-2.5">Small daily actions. Permanent vitality.</p>
+          <button 
+            id="btn-explore-sidebar"
+            class="w-full py-1.5 px-3 bg-white hover:bg-[#F8FAFC] text-[#0F172A] text-xs font-bold rounded-xl shadow transition flex items-center justify-center gap-1.5 hover:scale-[1.02] cursor-pointer"
+          >
+            <span>Explore Resources</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-[#00897B]"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =========================================================
+         MAIN APPLICATION VIEWPORT
+    ========================================================== -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      
+      <!-- Top Navigation Bar -->
+      <header class="h-16 bg-white dark:bg-[#131C31] border-b border-[#E2E8F0] dark:border-[#1E293B] px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs transition-colors duration-300">
+        <!-- Search Input -->
+        <div class="relative w-full max-w-md">
+          <i data-lucide="search" class="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input 
+            type="text" 
+            placeholder="Search for vitals, VO2 max, biomarkers, or routines..."
+            class="w-full pl-10 pr-4 py-2 bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-full text-xs text-[#334155] dark:text-white placeholder-[#64748B] focus:outline-none focus:border-[#00897B] transition"
+          />
+        </div>
+
+        <!-- Right Header Controls -->
+        <div class="flex items-center gap-4">
+          <!-- Live Telemetry Watch Sync -->
+          <button
+            id="btn-sync-watch"
+            class="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#E6F4F2] dark:bg-[#00897B]/20 text-[#00897B] dark:text-[#2DD4BF] border border-[#00897B]/20 dark:border-[#00897B]/40 hover:shadow-sm transition cursor-pointer"
+            title="Ingests fresh telemetry from wearable"
+          >
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="sync-icon"></i>
+            <span id="sync-text">Sync Watch</span>
+          </button>
+
+          <!-- Light/Dark Mode Switcher -->
+          <div class="flex items-center bg-[#F1F5F9] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] p-1 rounded-full transition-colors">
+            <button id="btn-theme-light" class="p-1 rounded-full transition text-[#F59E0B] bg-white shadow-xs" title="Light Mode">
+              <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+            </button>
+            <button id="btn-theme-dark" class="p-1 rounded-full transition text-[#94A3B8]" title="Dark Mode">
+              <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Notification Bell -->
+          <div class="relative cursor-pointer p-1.5 rounded-full hover:bg-[#F1F5F9] dark:hover:bg-[#1E293B] text-[#64748B] dark:text-[#94A3B8] transition">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span class="w-2 h-2 rounded-full bg-[#EF4444] absolute top-1 right-1 ring-2 ring-white dark:ring-[#131C31]"></span>
+          </div>
+
+          <!-- Profile Badge -->
+          <div id="nav-profile-badge" class="flex items-center gap-2.5 pl-2 cursor-pointer">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#00897B] to-[#2DD4BF] text-white flex items-center justify-center text-xs font-black shadow-md ring-2 ring-[#00897B]/20">
+              EP
+            </div>
+            <div class="hidden md:block text-left">
+              <p class="text-xs font-bold text-[#0F172A] dark:text-white leading-tight">Emily Park</p>
+              <p class="text-[10px] text-[#00897B] font-semibold leading-tight">Year 1 · 2026 Ready</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Dashboard Grid Content -->
+      <main class="p-6 space-y-6 max-w-[1440px] w-full mx-auto">
+        
+        <!-- =========================================================
+             HERO BANNER
+        ========================================================== -->
+        <section id="section-dashboard" class="scroll-mt-24 rounded-3xl relative overflow-hidden bg-gradient-to-r from-[#032B28] via-[#0A4B45] to-[#134E4A] text-white p-6 sm:p-8 min-h-[195px] flex items-center justify-between shadow-xl border border-[#2DD4BF]/20">
+          <img 
+            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1400&q=80" 
+            alt="Mountain Sunrise" 
+            class="absolute inset-0 w-full h-full object-cover opacity-45 mix-blend-overlay" 
+          />
+          <div class="absolute -top-10 -left-10 w-56 h-56 bg-[#2DD4BF]/30 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+          <div class="absolute -bottom-10 right-40 w-56 h-56 bg-[#F59E0B]/25 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div class="relative z-10 max-w-xl">
+            <span class="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-extrabold uppercase tracking-widest text-[#5EEAD4] border border-white/25 inline-flex items-center gap-1.5 mb-2">
+              <i data-lucide="sparkles" class="w-3 h-3 text-[#5EEAD4]"></i>
+              Morning Synthesis · 1 Jan 2026
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-black font-medical-heading tracking-tight text-white flex items-center gap-2">
+              Good Morning, Emily! 👋
+            </h2>
+            <p class="mt-1.5 text-xs sm:text-sm text-[#CCFBF1] leading-relaxed max-w-md font-medium">
+              Your 1-year watch telemetry is compiled. Small sustainable actions created measurable, clinical-grade improvements.
+            </p>
+            
+            <div class="mt-5 flex flex-wrap items-center gap-3">
+              <button 
+                id="btn-hero-sync"
+                class="px-5 py-2.5 bg-gradient-to-r from-[#00BFA5] to-[#00897B] hover:from-[#26A69A] hover:to-[#00796B] text-white text-xs font-bold rounded-xl shadow-lg shadow-[#00897B]/40 transition flex items-center gap-2 hover:scale-[1.02] cursor-pointer"
+              >
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>Log Today's Data</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+              <button 
+                onclick="window.app.scrollToSection('section-analytics', 'Analytics & Reports')"
+                class="px-4 py-2.5 bg-white/15 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 text-xs font-bold rounded-xl transition flex items-center gap-2 cursor-pointer"
+              >
+                <i data-lucide="activity" class="w-3.5 h-3.5 text-[#5EEAD4]"></i>
+                <span>View 2025 Deep Dive</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Glassmorphic Quote Box -->
+          <div class="relative z-10 hidden xl:flex items-center gap-3.5 bg-white/95 dark:bg-[#1E293B]/90 text-[#0F172A] dark:text-white border-white/70 dark:border-[#334155] backdrop-blur-xl p-4 rounded-2xl max-w-xs shadow-2xl border card-3d-hover animate-float-3d">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#00897B] via-[#00BFA5] to-[#F59E0B] flex items-center justify-center shrink-0 shadow-md">
+              <i data-lucide="sparkles" class="w-5 h-5 text-white animate-pulse"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold italic text-[#1E293B] dark:text-slate-200 leading-snug">
+                “A healthier outside starts from the inside.”
+              </p>
+              <span class="text-[10px] text-[#00897B] font-black mt-1 uppercase tracking-wider block">WellnessOS Philosophy</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             STAT CARDS ROW
+        ========================================================== -->
+        <section id="section-metrics" class="scroll-mt-24 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
+          <!-- Dynamically populated via app.js -->
+        </section>
+
+        <!-- =========================================================
+             WORKOUT RECOMMENDATION PROTOCOL
+        ========================================================== -->
+        <section id="section-workouts" class="scroll-mt-24 bg-white dark:bg-[#131C31] border-2 border-[#E2E8F0] dark:border-[#1E293B] rounded-3xl p-6 shadow-sm transition-colors duration-300">
+          <div class="flex flex-col md:flex-row md:items-center justify-between pb-5 border-b border-[#F1F5F9] dark:border-[#1E293B] gap-4">
+            <div>
+              <span class="text-xs font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5">
+                <i data-lucide="dumbbell" class="w-4 h-4 text-[#EA580C]"></i>
+                Kinetic Movement Recommendation
+              </span>
+              <h3 class="text-2xl sm:text-3xl font-black font-medical-heading text-[#0F172A] dark:text-white mt-0.5">
+                Personalized Daily Workout Protocol
+              </h3>
+              <p class="text-xs text-[#64748B] mt-1">
+                Engineered from Emily's watch telemetry: Active recovery aligned with cardiovascular capacity.
+              </p>
+            </div>
+
+            <!-- Workout Switcher Tabs -->
+            <div id="workout-tabs" class="flex items-center bg-[#F1F5F9] dark:bg-[#1E293B] p-1.5 rounded-2xl gap-1 shrink-0"></div>
+          </div>
+
+          <!-- Featured Workout Content -->
+          <div id="workout-featured-container" class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"></div>
+        </section>
+
+        <!-- =========================================================
+             HABIT MATRIX & STREAK MULTIPLIER
+        ========================================================== -->
+        <section id="section-habits" class="scroll-mt-24 bg-white dark:bg-[#131C31] border-2 border-[#E2E8F0] dark:border-[#1E293B] rounded-3xl p-6 shadow-sm transition-colors duration-300">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#F1F5F9] dark:border-[#1E293B] gap-4">
+            <div>
+              <span class="text-xs font-black uppercase tracking-wider text-[#7C3AED] flex items-center gap-1.5">
+                <i data-lucide="trophy" class="w-4 h-4 text-[#7C3AED]"></i>
+                Neuroplasticity & Consistency
+              </span>
+              <h3 class="text-2xl sm:text-3xl font-black font-medical-heading text-[#0F172A] dark:text-white mt-0.5">
+                Weekly Habit Matrix & Streak Multiplier
+              </h3>
+              <p class="text-xs text-[#64748B] mt-1">
+                Click today's circular orb to toggle completion. Visual heatmaps measure behavioral adherence.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <div class="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-400/20 to-orange-500/20 dark:bg-amber-950/40 border border-amber-500/30 dark:border-amber-600/40 text-amber-700 dark:text-amber-400 text-xs font-black flex items-center gap-1.5">
+                <i data-lucide="flame" class="w-4 h-4 text-orange-500 fill-orange-500"></i>
+                <span id="habit-total-streak">Total Active Streak: 21 Days</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Habit Cards Grid -->
+          <div id="habits-matrix-container" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- =========================================================
+             YEAR-LONG TRENDS & WELLNESS ASSISTANT
+        ========================================================== -->
+        <div id="section-analytics" class="scroll-mt-24 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Annual Chart Panel (2 Cols) -->
+          <div class="lg:col-span-2 bg-white dark:bg-[#131C31] border border-[#E2E8F0] dark:border-[#1E293B] p-6 rounded-2xl shadow-xs flex flex-col justify-between transition-colors duration-300">
+            <div>
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#F1F5F9] dark:border-[#1E293B]">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="activity" class="w-5 h-5 text-[#00897B]"></i>
+                  <h3 class="font-black font-medical-heading text-[#0F172A] dark:text-white text-xl">Year-Long Biomarker Trends</h3>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                  <div id="trend-selector-pills" class="flex items-center bg-[#F1F5F9] dark:bg-[#1E293B] p-1 rounded-xl text-xs font-semibold"></div>
+                  <div class="flex items-center gap-1.5 px-3 py-1.5 bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl text-xs font-medium text-[#64748B]">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#94A3B8]"></i>
+                    <span>Jan 1, 2025 - Dec 31, 2025</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SVG Interactive Trend Curve -->
+              <div class="mt-6 relative h-60 w-full">
+                <!-- Tooltip Marker -->
+                <div class="absolute left-[54%] top-[14%] -translate-x-1/2 z-20 flex flex-col items-center">
+                  <div class="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] text-[#0F172A] dark:text-white px-3 py-1.5 rounded-xl shadow-lg text-center animate-bounce">
+                    <span class="text-[10px] text-[#94A3B8] block font-medium">Jul 14, 2025</span>
+                    <strong class="text-xs font-extrabold" id="chart-tooltip-metric">9,842 steps</strong>
+                  </div>
+                  <div class="w-3 h-3 bg-[#00897B] rounded-full border-2 border-white ring-4 ring-[#00897B]/30 mt-1"></div>
+                </div>
+
+                <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 240">
+                  <defs>
+                    <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.4" />
+                      <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <line x1="0" y1="30" x2="1000" y2="30" stroke="currentColor" class="text-[#F1F5F9] dark:text-[#1E293B]" stroke-width="1" />
+                  <line x1="0" y1="90" x2="1000" y2="90" stroke="currentColor" class="text-[#F1F5F9] dark:text-[#1E293B]" stroke-width="1" />
+                  <line x1="0" y1="150" x2="1000" y2="150" stroke="currentColor" class="text-[#F1F5F9] dark:text-[#1E293B]" stroke-width="1" />
+                  <line x1="0" y1="210" x2="1000" y2="210" stroke="currentColor" class="text-[#F1F5F9] dark:text-[#1E293B]" stroke-width="1" />
+                  
+                  <path id="svg-trend-area" d="M 20 180 Q 100 130, 160 160 T 280 145 T 400 130 T 520 70 T 640 120 T 760 110 T 880 50 T 980 40 L 980 220 L 20 220 Z" fill="url(#areaGradient)" />
+                  <path id="svg-trend-line" d="M 20 180 Q 100 130, 160 160 T 280 145 T 400 130 T 520 70 T 640 120 T 760 110 T 880 50 T 980 40" fill="none" stroke="#00897B" stroke-width="3.5" stroke-linecap="round" />
+                </svg>
+
+                <div class="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-[#94A3B8] font-mono pointer-events-none">
+                  <span>15K</span><span>10K</span><span>5K</span><span>0</span>
+                </div>
+              </div>
+
+              <!-- Month Ticks -->
+              <div class="flex justify-between text-[11px] text-[#94A3B8] font-medium px-4 pt-2 border-t border-[#F1F5F9] dark:border-[#1E293B]">
+                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                <span class="text-[#00897B] font-bold">Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wellness Assistant Panel (1 Col) -->
+          <div id="section-assistant" class="scroll-mt-24 bg-white dark:bg-[#131C31] border border-[#E2E8F0] dark:border-[#1E293B] p-6 rounded-2xl shadow-xs flex flex-col justify-between transition-colors duration-300">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-[#F1F5F9] dark:border-[#1E293B]">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-lg bg-[#E6F4F2] text-[#00897B] flex items-center justify-center animate-pulse">
+                    <i data-lucide="bot" class="w-5 h-5"></i>
+                  </div>
+                  <h3 class="font-black font-medical-heading text-[#0F172A] dark:text-white text-base">Wellness Assistant</h3>
+                </div>
+                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-[#E6F4F2] text-[#00897B]">Beta</span>
+              </div>
+
+              <!-- Message History -->
+              <div id="chat-messages-container" class="mt-4 space-y-2.5 max-h-44 overflow-y-auto pr-1"></div>
+
+              <!-- Quick Prompts List -->
+              <div id="quick-prompts-container" class="mt-4 space-y-1.5"></div>
+            </div>
+
+            <!-- Input Bar -->
+            <form id="assistant-chat-form" class="mt-4 relative">
+              <input 
+                id="assistant-input"
+                type="text" 
+                placeholder="Ask a question..."
+                class="w-full pl-3.5 pr-10 py-2.5 bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl text-xs text-[#334155] dark:text-white placeholder-[#64748B] focus:outline-none focus:border-[#00897B] transition"
+              />
+              <button 
+                type="submit"
+                class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-[#00897B] text-white rounded-lg flex items-center justify-center hover:bg-[#00796B] transition shadow-xs cursor-pointer"
+              >
+                <i data-lucide="send" class="w-3 h-3"></i>
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- =========================================================
+             LOWER MODULES: BREAKDOWN, SLEEP, GOALS, REMINDERS
+        ========================================================== -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          
+          <!-- 1. Activity Breakdown -->
+          <div id="section-activity" class="scroll-mt-24 bg-white dark:bg-[#131C31] border border-[#E2E8F0] dark:border-[#1E293B] p-5 rounded-2xl shadow-xs flex flex-col justify-between card-3d-hover transition-colors duration-300">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-[#F1F5F9] dark:border-[#1E293B]">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="activity" class="w-4 h-4 text-[#EA580C]"></i>
+                  <h4 class="font-black font-medical-heading text-sm text-[#0F172A] dark:text-white">Activity Breakdown</h4>
+                </div>
+                <span class="text-[11px] text-[#64748B]">This Week</span>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between gap-4">
+                <div class="relative w-28 h-28 shrink-0 flex items-center justify-center filter drop-shadow-md">
+                  <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="#00897B" stroke-width="13" stroke-dasharray="124 238" stroke-dashoffset="0" stroke-linecap="round" />
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="#0284C7" stroke-width="13" stroke-dasharray="57 238" stroke-dashoffset="-124" stroke-linecap="round" />
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="#F59E0B" stroke-width="13" stroke-dasharray="29 238" stroke-dashoffset="-181" stroke-linecap="round" />
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="#8B5CF6" stroke-width="13" stroke-dasharray="29 238" stroke-dashoffset="-210" stroke-linecap="round" />
+                  </svg>
+                  <div class="absolute text-center">
+                    <span id="donut-step-total" class="text-sm font-extrabold text-[#0F172A] dark:text-white block leading-tight">7,842</span>
+                    <span class="text-[9px] text-[#64748B]">steps</span>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5 text-xs w-full">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#00897B]"></span>
+                      <span class="text-[#64748B] text-[11px]">Walking</span>
+                    </div>
+                    <span class="font-bold text-[#0F172A] dark:text-white text-xs">52%</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#0284C7]"></span>
+                      <span class="text-[#64748B] text-[11px]">Running</span>
+                    </div>
+                    <span class="font-bold text-[#0F172A] dark:text-white text-xs">24%</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span>
+                      <span class="text-[#64748B] text-[11px]">Cycling</span>
+                    </div>
+                    <span class="font-bold text-[#0F172A] dark:text-white text-xs">12%</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#8B5CF6]"></span>
+                      <span class="text-[#64748B] text-[11px]">Other</span>
+                    </div>
+                    <span class="font-bold text-[#0F172A] dark:text-white text-xs">12%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Sleep Analysis -->
+          <div id="section-sleep" class="scroll-mt-24 bg-white dark:bg-[#131C31] border border-[#E2E8F0] dark:border-[#1E293B] p-5 rounded-2xl shadow-xs flex flex-col justify-between card-3d-hover transition-colors duration-300">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-[#F1F5F9] dark:border-[#1E293B]">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="moon" class="w-4 h-4 text-[#4F46E5]"></i>
+                  <h4 class="font-black font-medical-heading text-sm text-[#0F172A] dark:text-white">Sleep Analysis</h4>
+                </div>
+                <span class="text-[11px] text-[#64748B]">This Week</span>
+              </div>
+
+              <div class="mt-4">
+                <div id="sleep-bars-container" class="h-28 flex items-end justify-between gap-1.5 px-1"></div>
+                <div class="flex items-center justify-between text-[10px] text-[#64748B] mt-2 pt-2 border-t border-[#F1F5F9] dark:border-[#1E293B]">
+                  <span>AASM Target: <strong>7.0+ hrs</strong></span>
+                  <span class="text-[#10B981] font-semibold">92% Consistency</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Goals & Progress -->
+          <div id="section-nutrition" class="scroll-mt-24 bg-white dark:bg-[#131C31] border border-[#E2E8F0] dark:border-[#1E293B] p-5 rounded-2xl shadow-xs flex flex-col justify-between card-3d-hover transition-colors duration-300">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-[#F1F5F9] dark:border-[#1E293B]">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="target" class="w-4 h-4 text-[#EF4444]"></i>
+                  <h4 class="font-black font-medical-heading text-sm text-[#0F172A] dark:text-white">Goals & Progress</h4>
+                </div>
+                <span class="text-[11px] text-[#00897B] font-semibold cursor-pointer">View All</span>
+              </div>
+
+              <div id="goals-progress-container" class="mt-3 space-y-3"></div>
+            </div>
+          </div>
+
+          <!-- 4. Upcoming & Reminders -->
+          <div class="bg-white dark:bg-[#131C31] border border-[#E2E8F0] dark:border-[#1E293B] p-5 rounded-2xl shadow-xs flex flex-col justify-between card-3d-hover transition-colors duration-300">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-[#F1F5F9] dark:border-[#1E293B]">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="calendar" class="w-4 h-4 text-[#8B5CF6]"></i>
+                  <h4 class="font-black font-medical-heading text-sm text-[#0F172A] dark:text-white">Upcoming & Reminders</h4>
+                </div>
+                <span class="text-[11px] text-[#00897B] font-semibold cursor-pointer">View All</span>
+              </div>
+
+              <div id="reminders-list-container" class="mt-3 space-y-2.5"></div>
+            </div>
+
+            <div class="pt-3 border-t border-[#F1F5F9] dark:border-[#1E293B] flex items-center justify-between text-[11px] text-[#64748B]">
+              <span>Today's Completion</span>
+              <span id="reminders-completion-count" class="text-[#00897B] font-bold">2 / 3 Done</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- =========================================================
+             CLINICAL INSIGHTS STRIP
+        ========================================================== -->
+        <div id="section-mood" class="scroll-mt-24 bg-white dark:bg-[#131C31] border border-[#E2E8F0] dark:border-[#1E293B] p-5 rounded-2xl shadow-xs transition-colors duration-300">
+          <div class="flex items-center justify-between pb-3 border-b border-[#F1F5F9] dark:border-[#1E293B]">
+            <div class="flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-4 h-4 text-[#F59E0B]"></i>
+              <h4 class="font-black font-medical-heading text-base text-[#0F172A] dark:text-white">Clinical & Behavioral Insights</h4>
+            </div>
+            <span class="text-[11px] text-[#64748B]">This Month</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-[#F0FDF4] to-[#DCFCE7] dark:bg-[#064E3B]/40 border border-[#BBF7D0] dark:border-[#059669]/30 flex items-start gap-3">
+              <div class="w-9 h-9 rounded-xl bg-[#16A34A] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h5 class="font-black font-medical-heading text-sm text-[#166534] dark:text-[#34D399]">Great Progress!</h5>
+                <p class="text-[11px] text-[#15803D] dark:text-emerald-200 mt-0.5 leading-relaxed font-medium">
+                  Average daily steps increased by <strong>18% this month</strong>. VO2 max estimation upgraded from Moderate to Good.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] dark:bg-[#1E3A8A]/40 border border-[#BFDBFE] dark:border-[#3B82F6]/30 flex items-start gap-3">
+              <div class="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md">
+                <i data-lucide="moon" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h5 class="font-black font-medical-heading text-sm text-[#1E40AF] dark:text-[#60A5FA]">Circadian Anchoring</h5>
+                <p class="text-[11px] text-[#1D4ED8] dark:text-blue-200 mt-0.5 leading-relaxed font-medium">
+                  Maintained restorative sleep architecture for <strong>24 out of 30 days</strong>, aligning with AASM clinical standards.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-[#FFFBEB] to-[#FEF3C7] dark:bg-[#78350F]/40 border border-[#FDE68A] dark:border-[#D97706]/30 flex items-start gap-3">
+              <div class="w-9 h-9 rounded-xl bg-[#D97706] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md">
+                <i data-lucide="droplet" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h5 class="font-black font-medical-heading text-sm text-[#92400E] dark:text-[#FBBF24]">Hydration Calibration</h5>
+                <p class="text-[11px] text-[#B45309] dark:text-amber-200 mt-0.5 leading-relaxed font-medium">
+                  Reached 2.1L today. Increase daytime intake by 400ml to reach optimal cellular hydration.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             YOUR PROFILE SECTION
+        ========================================================== -->
+        <section id="section-profile" class="scroll-mt-24 bg-white dark:bg-[#131C31] border-2 border-[#E2E8F0] dark:border-[#1E293B] rounded-3xl p-6 shadow-sm transition-colors duration-300">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#F1F5F9] dark:border-[#1E293B] gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#00897B] to-[#2DD4BF] flex items-center justify-center text-white text-base font-black shadow-md shadow-[#00897B]/30 ring-4 ring-[#00897B]/20">
+                EP
+              </div>
+              <div>
+                <span class="text-xs font-black uppercase tracking-wider text-[#00897B] flex items-center gap-1.5">
+                  <i data-lucide="user" class="w-4 h-4 text-[#00897B]"></i>
+                  Athlete & User Profile
+                </span>
+                <h3 class="text-2xl sm:text-3xl font-black font-medical-heading text-[#0F172A] dark:text-white mt-0.5">
+                  Emily Park
+                </h3>
+                <p class="text-xs text-[#64748B]">Telemetry tracking active since Jan 1, 2025 · ID #WL-8942-EP</p>
+              </div>
+            </div>
+
+            <span class="px-3.5 py-1.5 rounded-full bg-[#00897B]/15 text-[#00897B] font-bold text-xs border border-[#00897B]/30 flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00897B]"></i>
+              Verified Wearable Sync
+            </span>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155]">
+              <span class="text-[10px] text-[#94A3B8] font-bold uppercase block">Primary Email</span>
+              <p class="text-xs font-bold text-[#0F172A] dark:text-white mt-1 truncate">emily.park@wellnessos.health</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155]">
+              <span class="text-[10px] text-[#94A3B8] font-bold uppercase block">Paired Hardware</span>
+              <p class="text-xs font-bold text-[#0F172A] dark:text-white mt-1 truncate">WellnessOS Watch Pro (2025)</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155]">
+              <span class="text-[10px] text-[#94A3B8] font-bold uppercase block">Primary 2026 Objective</span>
+              <p class="text-xs font-bold text-[#0F172A] dark:text-white mt-1 truncate">Cardiovascular Endurance & Sleep</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155]">
+              <span class="text-[10px] text-[#94A3B8] font-bold uppercase block">Benchmark Placement</span>
+              <p class="text-xs font-bold text-[#00897B] dark:text-[#2DD4BF] mt-1">Top 10% Class Cohort</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             SETTINGS SECTION
+        ========================================================== -->
+        <section id="section-settings" class="scroll-mt-24 bg-white dark:bg-[#131C31] border-2 border-[#E2E8F0] dark:border-[#1E293B] rounded-3xl p-6 shadow-sm transition-colors duration-300">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#F1F5F9] dark:border-[#1E293B] gap-4">
+            <div>
+              <span class="text-xs font-black uppercase tracking-wider text-[#4F46E5] flex items-center gap-1.5">
+                <i data-lucide="settings" class="w-4 h-4 text-[#4F46E5]"></i>
+                Application Configuration
+              </span>
+              <h3 class="text-2xl sm:text-3xl font-black font-medical-heading text-[#0F172A] dark:text-white mt-0.5">
+                Dashboard & Telemetry Settings
+              </h3>
+              <p class="text-xs text-[#64748B] mt-1">Configure data refresh rates, measurement standards, and privacy controls.</p>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] bg-[#F8FAFC] dark:bg-[#1E293B] flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-bold text-[#0F172A] dark:text-white">Measurement Units</h4>
+                <p class="text-xs text-[#64748B] mt-0.5">Choose metric or imperial standards</p>
+              </div>
+              <select class="text-xs font-bold rounded-xl px-3 py-2 bg-white dark:bg-[#0B1120] text-[#0F172A] dark:text-white border border-[#CBD5E1] dark:border-[#475569] focus:outline-none">
+                <option>Metric (km, L, kcal)</option>
+                <option>Imperial (miles, fl oz, kcal)</option>
+              </select>
+            </div>
+
+            <div class="p-4 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] bg-[#F8FAFC] dark:bg-[#1E293B] flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-bold text-[#0F172A] dark:text-white">Watch Telemetry Sync</h4>
+                <p class="text-xs text-[#64748B] mt-0.5">Control background polling interval</p>
+              </div>
+              <select class="text-xs font-bold rounded-xl px-3 py-2 bg-white dark:bg-[#0B1120] text-[#0F172A] dark:text-white border border-[#CBD5E1] dark:border-[#475569] focus:outline-none">
+                <option>Real-time (Continuous)</option>
+                <option>Hourly Batches</option>
+                <option>Daily Summary Only</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer With Academic/Ethics Citations -->
+        <footer class="pt-2 pb-6 text-center text-xs text-[#94A3B8] dark:text-[#64748B] border-t border-[#E2E8F0] dark:border-[#1E293B]">
+          <p>
+            Data synthesized from Emily's wearable telemetry for Dec 25–31, 2025. Benchmarks referenced from WHO Guidelines 2020 & American Academy of Sleep Medicine.
+          </p>
+          <p class="mt-1 text-[11px] text-[#64748B] dark:text-[#475569]">
+            Coaching observations are educational wellness insights and do not constitute clinical or medical diagnosis.
+          </p>
+        </footer>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       EXPLORE RESOURCES MODAL
+  ========================================================== -->
+  <div id="resources-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-[#131C31] text-[#0F172A] dark:text-white border border-[#E2E8F0] dark:border-[#334155] rounded-3xl max-w-3xl w-full max-h-[88vh] overflow-y-auto shadow-2xl p-6 relative">
+      <div class="flex items-start justify-between pb-4 border-b border-[#F1F5F9] dark:border-[#1E293B]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#00897B] to-[#2DD4BF] flex items-center justify-center text-white shadow-md">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black font-medical-heading">
+              WellnessOS Clinical & Educational Library
+            </h3>
+            <p class="text-xs text-[#64748B] mt-0.5">
+              Curated peer-reviewed publications and evidence-based protocols for Emily's 2026 wellness journey.
+            </p>
+          </div>
+        </div>
+        <button id="btn-close-modal" class="p-2 rounded-full hover:bg-[#F1F5F9] dark:hover:bg-[#1E293B] text-slate-500 dark:text-slate-400 transition cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Ethics Notice Callout -->
+      <div class="mt-4 p-3.5 rounded-2xl bg-[#E6F4F2] dark:bg-teal-950/40 border border-[#00897B]/30 dark:border-teal-500/30 text-[#004D40] dark:text-teal-200 flex items-center gap-2.5 text-xs font-medium">
+        <i data-lucide="shield-alert" class="w-4 h-4 text-[#00897B] shrink-0"></i>
+        <span>
+          <strong>Academic Integrity Notice:</strong> All resources cite published public-health guidelines (WHO 2020, AASM, ICMR). These educational materials are strictly preventative and non-diagnostic.
+        </span>
+      </div>
+
+      <!-- Dynamic Resources Grid -->
+      <div id="modal-resources-grid" class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+      <div class="mt-6 pt-4 border-t border-[#F1F5F9] dark:border-[#1E293B] flex items-center justify-between">
+        <span class="text-xs text-[#64748B]">Showing 4 of 24 Verified Protocols</span>
+        <button id="btn-close-modal-bottom" class="px-5 py-2 bg-[#00897B] hover:bg-[#00796B] text-white text-xs font-bold rounded-xl shadow-md transition cursor-pointer">
+          Close Library
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
